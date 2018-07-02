@@ -125,7 +125,8 @@ sub new {
 sub output_hash_to_line {
   my $self = shift;
   my $hash = shift;
-  return join("\t", map {defined($hash->{$_}) ? convert_arrayref($hash->{$_}) : '-'} @{$self->fields});
+  #return join("\t", map {defined($hash->{$_}) ? convert_arrayref($hash->{$_}) : '-'} @{$self->fields});
+  return join("\t", map {defined($hash->{$_}) ? convert_arrayref($hash->{$_}) : ''} @{$self->fields});	# bh4 changed this to empty string for missing values
 }
 
 
