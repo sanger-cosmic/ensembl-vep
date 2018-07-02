@@ -126,13 +126,13 @@ $of = Bio::EnsEMBL::VEP::OutputFactory::Tab->new({
   config => $cfg,
   header_info => $test_cfg->{header_info}
 });
-is($of->output_hash_to_line({}), '-'.("\t\-" x 17), 'output_hash_to_line - empty');
+is($of->output_hash_to_line({}), ''.("\t" x 17), 'output_hash_to_line - empty');
 
 is(
   $of->output_hash_to_line({
     Uploaded_variation => 0,
   }),
-  '0'.("\t\-" x 17),
+  '0'.("\t" x 17),
   'output_hash_to_line - test 0'
 );
 
@@ -144,46 +144,46 @@ my @lines = @{$of->get_all_lines_by_InputBuffer($ib)};
 is(scalar @lines, 744, 'get_all_lines_by_InputBuffer - count');
 
 is(
-  $lines[0],
-  join("\t", qw(
-    rs142513484
-    21:25585733
-    T
-    ENSG00000154719
-    ENST00000307301
-    Transcript
-    3_prime_UTR_variant
-    1122
-    - - - - -
-    MODIFIER
-    -
-    -1
-    -
-  )),
+  $lines[0], "rs142513484\t21:25585733\tT\tENSG00000154719\tENST00000307301\tTranscript\t3_prime_UTR_variant\t1122\t\t\t\t\t\tMODIFIER\t\t-1\t",
+  #join("\t", qw(
+  #  rs142513484
+  #  21:25585733
+  #  T
+  #  ENSG00000154719
+  #  ENST00000307301
+  #  Transcript
+  #  3_prime_UTR_variant
+  #  1122
+  #  - - - - -
+  #  MODIFIER
+  #  -
+  #  -1
+  #  -
+  #)),
   'get_all_lines_by_InputBuffer - check first'
 );
 
 is(
-  $lines[-1],
-  join("\t", qw(
-    rs141331202
-    21:25982445
-    T
-    ENSG00000142192
-    ENST00000448850
-    Transcript
-    missense_variant
-    830
-    832
-    278
-    V/I
-    Gtt/Att
-    -
-    MODERATE
-    -
-    -1
-    cds_start_NF
-  )),
+  $lines[-1], "rs141331202\t21:25982445\tT\tENSG00000142192\tENST00000448850\tTranscript\tmissense_variant\t830\t832\t278\tV/I\tGtt/Att\t\tMODERATE\t\t-1\tcds_start_NF",
+  #join("\t", qw(
+  #  rs141331202
+  #  21:25982445
+  #  T
+  #  ENSG00000142192
+  #  ENST00000448850
+  #  Transcript
+  #  missense_variant
+  #  830
+  #  832
+  #  278
+  #  V/I
+  #  Gtt/Att
+  #  -
+  #  MODERATE
+  #  -
+  #  -1
+  #  cds_start_NF
+  #)),
   'get_all_lines_by_InputBuffer - check last'
 );
 
@@ -207,25 +207,25 @@ SKIP: {
   @lines = @{$of->get_all_lines_by_InputBuffer($runner->get_InputBuffer)};
 
   is(
-    $lines[0],
-    join("\t", qw(
-      rs142513484
-      21:25585733
-      T
-      ENSG00000154719
-      ENST00000307301
-      Transcript
-      3_prime_UTR_variant
-      1122
-      - - - - -
-      MODIFIER
-      -
-      -1
-      -
-      -
-      test1
-      BAR
-    )),
+    $lines[0], "rs142513484\t21:25585733\tT\tENSG00000154719\tENST00000307301\tTranscript\t3_prime_UTR_variant\t1122\t\t\t\t\t\tMODIFIER\t\t-1\t\t\ttest1\tBAR",
+    #join("\t", qw(
+      #rs142513484
+      #21:25585733
+      #T
+      #ENSG00000154719
+      #ENST00000307301
+      #Transcript
+      #3_prime_UTR_variant
+      #1122
+      #- - - - -
+      #MODIFIER
+      #-
+      #-1
+      #-
+      #-
+      #test1
+      #BAR
+    #)),
     'get_all_lines_by_InputBuffer - custom'
   );
 }
@@ -242,10 +242,10 @@ $of = Bio::EnsEMBL::VEP::OutputFactory::Tab->new({config => $ib->config});
 is(
   $lines[0],
   "rs142513484\t21:25585733\tT\tENSG00000154719\tENST00000307301\tTranscript\t3_prime_UTR_variant\t1122\t".
-  "-\t-\t-\t-\trs142513484\tMODIFIER\t-\t-1\t-\tSNV\tMRPL39\tHGNC\tHGNC:14027\tprotein_coding\tYES\t5\tA2\t".
-  "CCDS33522.1\tENSP00000305682\tQ9NYK5\t-\tUPI00001AEAC0\t-\t-\t-\t11/11\t-\t-\t-\tENST00000307301.11:c.*18G>A\t".
-  "-\t-\t0.0010\t0.003\t0.0014\t0\t0\t0\t0.004998\t0\t0.0003478\t0.004643\t0.0003236\t0\t0\t0\t1.886e-05\t0\t0\t".
-  "0.004998\tAA\t-\t-\t-\t-\t-\t-\t-\t-",
+  "\t\t\t\trs142513484\tMODIFIER\t\t-1\t\tSNV\tMRPL39\tHGNC\tHGNC:14027\tprotein_coding\tYES\t5\tA2\t".
+  "CCDS33522.1\tENSP00000305682\tQ9NYK5\t\tUPI00001AEAC0\t\t\t\t11/11\t\t\t\tENST00000307301.11:c.*18G>A\t".
+  "\t\t0.0010\t0.003\t0.0014\t0\t0\t0\t0.004998\t0\t0.0003478\t0.004643\t0.0003236\t0\t0\t0\t1.886e-05\t0\t0\t".
+  "0.004998\tAA\t\t\t\t\t\t\t\t",
   'get_all_lines_by_InputBuffer - everything'
 );
 
