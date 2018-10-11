@@ -215,13 +215,6 @@ our @OPTION_SETS = (
   },
 
   {
-    flags => ['check_frequency'],
-    set => {
-      no_check_alleles => 1,
-    }
-  },
-  
-  {
     flags => [qw(check_frequency af af_1kg af_esp af_exac af_gnomad max_af pubmed)],
     set   => {
       check_existing => 1,
@@ -710,7 +703,7 @@ can put strain on the Ensembl servers, limiting availability to other users.
 To enable using databases, add the flag "--database".
 
 Documentation
-Installer: http://www.ensembl.org/info/docs/tools/vep/vep_script.html#installer
+Installer: http://www.ensembl.org/info/docs/tools/vep/script/vep_download.html#installer
 Cache: http://www.ensembl.org/info/docs/tools/vep/script/index.html#cache
 
     }

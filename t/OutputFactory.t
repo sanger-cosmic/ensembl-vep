@@ -1360,15 +1360,88 @@ is_deeply(
   'SV - pick_VariationFeatureOverlapAllele_per_gene'
 );
 
-is(scalar @{$of->filter_VariationFeatureOverlapAlleles(\@vfoas)}, scalar @vfoas, 'SV - filter_VariationFeatureOverlapAlleles - no filter');
+is(scalar @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)}, scalar @vfoas, 'SV - filter_StructuralVariationOverlapAlleles - no filter');
 
+
+## filter_StructuralVariationOverlapAlleles
+###########################################
+
+# Pick
 $of->{pick} = 1;
 is_deeply(
-  [sort map {$_->feature->stable_id} @{$of->filter_VariationFeatureOverlapAlleles(\@vfoas)}],
+  [sort map {$_->feature->stable_id} @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)}],
   ['ENST00000307301'],
-  'SV - filter_VariationFeatureOverlapAlleles - pick'
+  'SV - filter_StructuralVariationOverlapAlleles - pick'
 );
 $of->{pick} = 0;
+
+# Pick allele
+$of->{pick_allele} = 1;
+is_deeply(
+  [sort map {$_->feature->stable_id} @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)}],
+  ['ENST00000307301'],
+  'SV - filter_StructuralVariationOverlapAlleles - pic_allele'
+);
+$of->{pick_allele} = 0;
+
+# Flag pick
+$of->{flag_pick} = 1;
+is(
+  scalar @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)},
+  scalar @vfoas,
+  'SV - filter_StructuralVariationOverlapAlleles - flag_pick count'
+);
+is_deeply(
+  [
+    sort
+    map {$_->feature->stable_id}
+    grep {$_->{PICK}}
+    @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)}
+  ],
+  ['ENST00000307301'],
+  'SV - filter_StructuralVariationOverlapAlleles - flag_pick check'
+);
+$of->{flag_pick} = 0;
+
+# Flag pick allele
+$of->{flag_pick_allele} = 1;
+is(
+  scalar @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)},
+  scalar @vfoas,
+  'SV - filter_StructuralVariationOverlapAlleles - flag_pick_allele count'
+);
+is_deeply(
+  [
+    sort
+    map {$_->feature->stable_id}
+    grep {$_->{PICK}}
+    @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)}
+  ],
+  ['ENST00000307301'],
+  'SV - filter_StructuralVariationOverlapAlleles - flag_pick_allele check'
+);
+$of->{flag_pick_allele} = 0;
+
+# Flag pick allele gene
+$of->{flag_pick_allele_gene} = 1;
+is(
+  scalar @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)},
+  scalar @vfoas,
+  'SV - filter_StructuralVariationOverlapAlleles - flag_pick_allele_gene count'
+);
+is_deeply(
+  [
+    sort
+    map {$_->feature->stable_id}
+    grep {$_->{PICK}}
+    @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)}
+  ],
+  [
+    'ENSR00001963192', 'ENST00000307301', 'ENST00000567517'
+  ],
+  'SV - filter_StructuralVariationOverlapAlleles - flag_pick_allele_gene check'
+);
+$of->{flag_pick_allele_gene} = 0;
 
 
 ## get_all_StructuralVariationOverlapAlleles
@@ -1483,6 +1556,7 @@ is_deeply(
 );
 $of->{allele_number} = 0;
 
+
 $of->{flag_pick} = 1;
 ($vfoa) = grep {$_->{PICK}} @{$of->get_all_StructuralVariationOverlapAlleles($ib->buffer->[0])};
 is_deeply(
@@ -1500,7 +1574,7 @@ is_deeply(
     'Allele' => 'duplication',
     'PICK' => 1,
   },
-  'SV - StructuralVariationOverlapAllele_to_output_hash - pick'
+  'SV - StructuralVariationOverlapAllele_to_output_hash - flag_pick'
 );
 $of->{flag_pick} = 0;
 
@@ -1829,12 +1903,63 @@ ok($tmp =~ /went wrong/, 'run_plugins - new fails message');
 open(STDERR, ">&SAVE") or die "Can't restore STDERR\n";
 
 
+## HGVS shifting
+################
+
+$of->{hgvs}  = 1;
+$of->{hgvsg} = 1;
+my $input_file_example = $test_cfg->create_input_file([qw(21 25592985 hgvsins A ATAAA . . .)]);
+
+# Shifting ON
+$ib = get_annotated_buffer({
+  input_file => $input_file_example,
+  shift_hgvs => 1
+},1);
+
+$vfoa = $of->get_all_VariationFeatureOverlapAlleles($ib->buffer->[0])->[0];
+is_deeply(
+  $of->VariationFeatureOverlapAllele_to_output_hash($vfoa, {}, $ib->buffer->[0]),
+  {
+    "IMPACT" => "MODIFIER",
+    "Consequence" => [
+      "intron_variant"
+    ],
+    "HGVSg" => "21:g.25592986_25592989dup",
+    "Allele" => "TAAA"
+  },
+  'HGVS 3prime shifting - ON'
+);
+
+# Shifting OFF
+$ib = get_annotated_buffer({
+  input_file => $input_file_example,
+  shift_hgvs => 0
+},1);
+
+$vfoa = $of->get_all_VariationFeatureOverlapAlleles($ib->buffer->[0])->[0];
+is_deeply(
+  $of->VariationFeatureOverlapAllele_to_output_hash($vfoa, {}, $ib->buffer->[0]),
+  {
+    "IMPACT" => "MODIFIER",
+    "Consequence" => [
+      "intron_variant"
+    ],
+    "HGVSg" => "21:g.25592982_25592985dup",
+    "Allele" => "TAAA"
+  },
+  'HGVS 3prime shifting - OFF'
+);
+
+$of->{hgvs}  = 0;
+$of->{hgvsg} = 0;
+
 
 # done
 done_testing();
 
 sub get_annotated_buffer {
   my $tmp_cfg = shift;
+  my $set_package_variables = shift;
 
   my $runner = Bio::EnsEMBL::VEP::Runner->new({
     %$cfg_hash,
@@ -1843,6 +1968,10 @@ sub get_annotated_buffer {
   });
 
   $runner->init;
+  # Force setting the package variables as the 'run' method is not used here
+  if ($set_package_variables) {
+    $runner->_set_package_variables();
+  }
 
   my $ib = $runner->get_InputBuffer;
   $ib->next();
